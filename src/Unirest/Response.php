@@ -15,7 +15,7 @@ class Response
      * @param string $headers raw header string from cURL response
      * @param array $json_args arguments to pass to json_decode function
      */
-    public function __construct($code, $raw_body, $headers, $json_args = array())
+    public function __construct($code, $raw_body, $headers, $json_args = [])
     {
         $this->code     = $code;
         $this->headers  = $this->parseHeaders($headers);
@@ -48,7 +48,7 @@ class Response
             return http_parse_headers($raw_headers);
         } else {
             $key = '';
-            $headers = array();
+            $headers = [];
 
             foreach (explode("\n", $raw_headers) as $i => $h) {
                 $h = explode(':', $h, 2);
@@ -57,9 +57,9 @@ class Response
                     if (!isset($headers[$h[0]])) {
                         $headers[$h[0]] = trim($h[1]);
                     } elseif (is_array($headers[$h[0]])) {
-                        $headers[$h[0]] = array_merge($headers[$h[0]], array(trim($h[1])));
+                        $headers[$h[0]] = array_merge($headers[$h[0]], [trim($h[1])]);
                     } else {
-                        $headers[$h[0]] = array_merge(array($headers[$h[0]]), array(trim($h[1])));
+                        $headers[$h[0]] = array_merge([$headers[$h[0]]], [trim($h[1])]);
                     }
 
                     $key = $h[0];

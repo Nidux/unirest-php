@@ -1,13 +1,13 @@
 <?php
 
-namespace Unirest\Request\Body\Test;
+namespace Tests;
 
+use CURLFile;
+use PHPUnit\Framework\TestCase;
 use Unirest\Request as Request;
 use Unirest\Request\Body as Body;
 
-require_once __DIR__ . '/../../src/Unirest.php';
-
-class BodyTest extends \PHPUnit_Framework_TestCase
+class BodyTest extends TestCase
 {
     public function testCURLFile()
     {
@@ -18,7 +18,7 @@ class BodyTest extends \PHPUnit_Framework_TestCase
         if (PHP_MAJOR_VERSION === 5 && PHP_MINOR_VERSION === 4) {
             $this->assertEquals($file, sprintf('@%s;filename=%s;type=', $fixture, basename($fixture)));
         } else {
-            $this->assertTrue($file instanceof \CURLFile);
+            $this->assertTrue($file instanceof CURLFile);
         }
     }
 
@@ -27,11 +27,11 @@ class BodyTest extends \PHPUnit_Framework_TestCase
         $fixture = __DIR__ . '/fixtures/upload.txt';
 
         $file = Body::File($fixture);
-        $body = array(
+        $body = [
             'to' => 'mail@mailinator.com',
             'from' => 'mail@mailinator.com',
             'file' => $file
-        );
+        ];
 
         $result = Request::buildHTTPCurlQuery($body);
         $this->assertEquals($result['file'], $file);
@@ -39,26 +39,26 @@ class BodyTest extends \PHPUnit_Framework_TestCase
 
     public function testJson()
     {
-        $body = Body::Json(array('foo', 'bar'));
+        $body = Body::Json(['foo', 'bar']);
 
-        $this->assertEquals($body, '["foo","bar"]');
+        $this->assertEquals('["foo","bar"]', $body);
     }
 
     public function testForm()
     {
-        $body = Body::Form(array('foo' => 'bar', 'bar' => 'baz'));
+        $body = Body::Form(['foo' => 'bar', 'bar' => 'baz']);
 
-        $this->assertEquals($body, 'foo=bar&bar=baz');
+        $this->assertEquals('foo=bar&bar=baz', $body);
 
         // try again with a string
         $body = Body::Form($body);
 
-        $this->assertEquals($body, 'foo=bar&bar=baz');
+        $this->assertEquals('foo=bar&bar=baz', $body);
     }
 
     public function testMultipart()
     {
-        $arr = array('foo' => 'bar', 'bar' => 'baz');
+        $arr = ['foo' => 'bar', 'bar' => 'baz'];
 
         $body = Body::Multipart((object) $arr);
 
@@ -66,24 +66,24 @@ class BodyTest extends \PHPUnit_Framework_TestCase
 
         $body = Body::Multipart('flat');
 
-        $this->assertEquals($body, array('flat'));
+        $this->assertEquals(['flat'], $body);
     }
 
     public function testMultipartFiles()
     {
         $fixture = __DIR__ . '/fixtures/upload.txt';
 
-        $data = array('foo' => 'bar', 'bar' => 'baz');
-        $files = array('test' => $fixture);
+        $data = ['foo' => 'bar', 'bar' => 'baz'];
+        $files = ['test' => $fixture];
 
         $body = Body::Multipart($data, $files);
 
         // echo $body;
 
-        $this->assertEquals($body, array(
+        $this->assertEquals($body, [
             'foo' => 'bar',
             'bar' => 'baz',
             'test' => Body::File($fixture)
-        ));
+        ]);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Unirest\Request;
 
+use CURLFile;
+use Traversable;
 use Unirest\Request as Request;
 use Unirest\Exception as Exception;
 
@@ -12,12 +14,12 @@ class Body
      * @param string $filename The file path
      * @param string $mimetype MIME type
      * @param string $postname the file name
-     * @return string|\CURLFile
+     * @return string|CURLFile
      */
     public static function File($filename, $mimetype = '', $postname = '')
     {
         if (class_exists('CURLFile')) {
-            return new \CURLFile($filename, $mimetype, $postname);
+            return new CURLFile($filename, $mimetype, $postname);
         }
 
         if (function_exists('curl_file_create')) {
@@ -27,6 +29,11 @@ class Body
         return sprintf('@%s;filename=%s;type=%s', $filename, $postname ?: basename($filename), $mimetype);
     }
 
+    /**
+     * @param $data
+     * @return false|string
+     * @throws Exception
+     */
     public static function Json($data)
     {
         if (!function_exists('json_encode')) {
@@ -38,7 +45,7 @@ class Body
 
     public static function Form($data)
     {
-        if (is_array($data) || is_object($data) || $data instanceof \Traversable) {
+        if (is_array($data) || is_object($data) || $data instanceof Traversable) {
             return http_build_query(Request::buildHTTPCurlQuery($data));
         }
 

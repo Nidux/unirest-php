@@ -1,27 +1,11 @@
-# Unirest for PHP [![Build Status][travis-image]][travis-url] [![version][packagist-version]][packagist-url]
-
-[![Downloads][packagist-downloads]][packagist-url]
-[![Code Climate][codeclimate-quality]][codeclimate-url]
-[![Coverage Status][codeclimate-coverage]][codeclimate-url]
-[![Dependencies][versioneye-image]][versioneye-url]
-[![Gitter][gitter-image]][gitter-url]
-[![License][packagist-license]][license-url]
-
-![][unirest-logo]
+# Unirest for PHP (fork of [Unirest](http://unirest.io) from Kong)
+ is a set of lightweight HTTP libraries available in multiple languages, originally made by [Mashape](https://github.com/Mashape), but contains bits provided by Nidux 
 
 
-[Unirest](http://unirest.io) is a set of lightweight HTTP libraries available in multiple languages, built and maintained by [Mashape](https://github.com/Mashape), who also maintain the open-source API Gateway [Kong](https://github.com/Mashape/kong). 
+## Notable changes
 
-
-## Features
-
-* Utility methods to call `GET`, `HEAD`, `POST`, `PUT`, `DELETE`, `CONNECT`, `OPTIONS`, `TRACE`, `PATCH` requests
-* Supports form parameters, file uploads and custom body entities
-* Supports gzip
-* Supports Basic, Digest, Negotiate, NTLM Authentication natively
-* Customizable timeout
-* Customizable default headers for every request (DRY)
-* Automatic JSON parsing into a native object for JSON responses
+* PHP 7.4 support
+* Optimization
 
 ## Requirements
 
@@ -37,7 +21,7 @@ To install unirest-php with Composer, just add the following to your `composer.j
 ```json
 {
     "require-dev": {
-        "mashape/unirest-php": "3.*"
+        "nidux/unirest-php": "3.*"
     }
 }
 ```
@@ -45,35 +29,7 @@ To install unirest-php with Composer, just add the following to your `composer.j
 or by running the following command:
 
 ```shell
-composer require mashape/unirest-php
-```
-
-This will get you the latest version of the reporter and install it. If you do want the master, untagged, version you may use the command below:
-
-```shell
-composer require mashape/php-test-reporter dev-master
-```
-
-Composer installs autoloader at `./vendor/autoloader.php`. to include the library in your script, add:
-
-```php
-require_once 'vendor/autoload.php';
-```
-
-If you use Symfony2, autoloader has to be detected automatically.
-
-*You can see this library on [Packagist](https://packagist.org/packages/mashape/unirest-php).*
-
-### Install from source
-
-Download the PHP library from Github, then include `Unirest.php` in your script:
-
-```shell
-git clone git@github.com:Mashape/unirest-php.git 
-```
-
-```php
-require_once '/path/to/unirest-php/src/Unirest.php';
+composer require nidux/unirest-php
 ```
 
 ## Usage
@@ -83,8 +39,8 @@ require_once '/path/to/unirest-php/src/Unirest.php';
 So you're probably wondering how using Unirest makes creating requests in PHP easier, let's look at a working example:
 
 ```php
-$headers = array('Accept' => 'application/json');
-$query = array('foo' => 'hello', 'bar' => 'world');
+$headers = ['Accept' => 'application/json'];
+$query = ['foo' => 'hello', 'bar' => 'world'];
 
 $response = Unirest\Request::post('http://mockbin.com/request', $headers, $query);
 
@@ -99,8 +55,8 @@ $response->raw_body;    // Unparsed body
 A JSON Request can be constructed using the `Unirest\Request\Body::Json` helper:
 
 ```php
-$headers = array('Accept' => 'application/json');
-$data = array('name' => 'ahmad', 'company' => 'mashape');
+$headers = ['Accept' => 'application/json'];
+$data = ['name' => 'ahmad', 'company' => 'mashape'];
 
 $body = Unirest\Request\Body::json($data);
 
@@ -117,8 +73,8 @@ $response = Unirest\Request::post('http://mockbin.com/request', $headers, $body)
 A typical Form Request can be constructed using the `Unirest\Request\Body::Form` helper:
 
 ```php
-$headers = array('Accept' => 'application/json');
-$data = array('name' => 'ahmad', 'company' => 'mashape');
+$headers = ['Accept' => 'application/json'];
+$data = ['name' => 'ahmad', 'company' => 'mashape'];
 
 $body = Unirest\Request\Body::form($data);
 
@@ -134,8 +90,8 @@ $response = Unirest\Request::post('http://mockbin.com/request', $headers, $body)
 A Multipart Request can be constructed using the `Unirest\Request\Body::Multipart` helper:
 
 ```php
-$headers = array('Accept' => 'application/json');
-$data = array('name' => 'ahmad', 'company' => 'mashape');
+$headers = ['Accept' => 'application/json'];
+$data = ['name' => 'ahmad', 'company' => 'mashape'];
 
 $body = Unirest\Request\Body::multipart($data);
 
@@ -152,9 +108,9 @@ $response = Unirest\Request::post('http://mockbin.com/request', $headers, $body)
 simply add an array of files as the second argument to to the `Multipart` helper:
 
 ```php
-$headers = array('Accept' => 'application/json');
-$data = array('name' => 'ahmad', 'company' => 'mashape');
-$files = array('bio' => '/path/to/bio.txt', 'avatar' => '/path/to/avatar.jpg');
+$headers = ['Accept' => 'application/json'];
+$data = ['name' => 'ahmad', 'company' => 'mashape'];
+$files = ['bio' => '/path/to/bio.txt', 'avatar' => '/path/to/avatar.jpg'];
 
 $body = Unirest\Request\Body::multipart($data, $files);
 
@@ -164,13 +120,13 @@ $response = Unirest\Request::post('http://mockbin.com/request', $headers, $body)
 If you wish to further customize the properties of files uploaded you can do so with the `Unirest\Request\Body::File` helper:
 
 ```php
-$headers = array('Accept' => 'application/json');
-$body = array(
+$headers = ['Accept' => 'application/json'];
+$body = [
     'name' => 'ahmad', 
     'company' => 'mashape'
     'bio' => Unirest\Request\Body::file('/path/to/bio.txt', 'text/plain'),
     'avatar' => Unirest\Request\Body::file('/path/to/my_avatar.jpg', 'text/plain', 'avatar.jpg')
-);
+];
 
 $response = Unirest\Request::post('http://mockbin.com/request', $headers, $body);
  ```
@@ -182,8 +138,8 @@ $response = Unirest\Request::post('http://mockbin.com/request', $headers, $body)
 Sending a custom body such rather than using the `Unirest\Request\Body` helpers is also possible, for example, using a [`serialize`](http://php.net/manual/en/function.serialize.php) body string with a custom `Content-Type`:
 
 ```php
-$headers = array('Accept' => 'application/json', 'Content-Type' => 'application/x-php-serialized');
-$body = serialize((array('foo' => 'hello', 'bar' => 'world'));
+$headers = ['Accept' => 'application/json', 'Content-Type' => 'application/x-php-serialized'];
+$body = serialize((['foo' => 'hello', 'bar' => 'world']);
 
 $response = Unirest\Request::post('http://mockbin.com/request', $headers, $body);
 ```

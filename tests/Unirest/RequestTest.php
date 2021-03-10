@@ -1,12 +1,12 @@
 <?php
 
-namespace Unirest\Request\Test;
+namespace Tests;
 
+use PHPUnit\Framework\TestCase;
+use Unirest\Exception;
 use Unirest\Request as Request;
 
-require __DIR__ . '/../../src/Unirest.php';
-
-class UnirestRequestTest extends \PHPUnit_Framework_TestCase
+class RequestTest extends TestCase
 {
     // Generic
     public function testCurlOpts()
@@ -20,11 +20,9 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
         Request::clearCurlOpts();
     }
 
-    /**
-     * @expectedException \Unirest\Exception
-     */
     public function testTimeoutFail()
     {
+        $this->expectException(Exception::class);
         Request::timeout(1);
 
         Request::get('http://mockbin.com/delay/1000');
@@ -34,10 +32,10 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testDefaultHeaders()
     {
-        $defaultHeaders = array(
+        $defaultHeaders = [
             'header1' => 'Hello',
             'header2' => 'world'
-        );
+        ];
         Request::defaultHeaders($defaultHeaders);
 
         $response = Request::get('http://mockbin.com/request');
@@ -115,7 +113,7 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testBasicAuthenticationDeprecated()
     {
-        $response = Request::get('http://mockbin.com/request', array(), array(), 'user', 'password');
+        $response = Request::get('http://mockbin.com/request', [], [], 'user', 'password');
 
         $this->assertEquals('Basic dXNlcjpwYXNzd29yZA==', $response->body->headers->authorization);
     }
@@ -131,9 +129,9 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testCustomHeaders()
     {
-        $response = Request::get('http://mockbin.com/request', array(
+        $response = Request::get('http://mockbin.com/request', [
             'user-agent' => 'unirest-php',
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('unirest-php', $response->body->headers->{'user-agent'});
@@ -142,11 +140,25 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     // GET
     public function testGet()
     {
-        $response = Request::get('http://mockbin.com/request?name=Mark', array(
+        $response = Request::get('http://mockbin.com/request?name=Mark', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'nick' => 'thefosk'
-        ));
+        ]);
+
+        $this->assertEquals(200, $response->code);
+        $this->assertEquals('GET', $response->body->method);
+        $this->assertEquals('Mark', $response->body->queryString->name);
+        $this->assertEquals('thefosk', $response->body->queryString->nick);
+    }
+
+    public function testGetWithExplicitPort()
+    {
+        $response = Request::get('http://mockbin.com:80/request?name=Mark', [
+            'Accept' => 'application/json'
+        ], [
+            'nick' => 'thefosk'
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('GET', $response->body->method);
@@ -156,15 +168,15 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testGetMultidimensionalArray()
     {
-        $response = Request::get('http://mockbin.com/request', array(
+        $response = Request::get('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'key' => 'value',
-            'items' => array(
+            'items' => [
                 'item1',
                 'item2'
-            )
-        ));
+            ]
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('GET', $response->body->method);
@@ -175,12 +187,12 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWithDots()
     {
-        $response = Request::get('http://mockbin.com/request', array(
+        $response = Request::get('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'user.name' => 'Mark',
             'nick' => 'thefosk'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('GET', $response->body->method);
@@ -190,12 +202,12 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWithDotsAlt()
     {
-        $response = Request::get('http://mockbin.com/request', array(
+        $response = Request::get('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'user.name' => 'Mark Bond',
             'nick' => 'thefosk'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('GET', $response->body->method);
@@ -204,11 +216,11 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     }
     public function testGetWithEqualSign()
     {
-        $response = Request::get('http://mockbin.com/request', array(
+        $response = Request::get('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'name' => 'Mark=Hello'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('GET', $response->body->method);
@@ -217,11 +229,11 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWithEqualSignAlt()
     {
-        $response = Request::get('http://mockbin.com/request', array(
+        $response = Request::get('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'name' => 'Mark=Hello=John'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('GET', $response->body->method);
@@ -240,10 +252,10 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testGetArray()
     {
-        $response = Request::get('http://mockbin.com/request', array(), array(
+        $response = Request::get('http://mockbin.com/request', [], [
             'name[0]' => 'Mark',
             'name[1]' => 'John'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('GET', $response->body->method);
@@ -254,9 +266,9 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     // HEAD
     public function testHead()
     {
-        $response = Request::head('http://mockbin.com/request?name=Mark', array(
+        $response = Request::head('http://mockbin.com/request?name=Mark', [
           'Accept' => 'application/json'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
     }
@@ -264,12 +276,29 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     // POST
     public function testPost()
     {
-        $response = Request::post('http://mockbin.com/request', array(
+        $response = Request::post('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'name' => 'Mark',
             'nick' => 'thefosk'
-        ));
+        ]);
+
+        $this->assertEquals(200, $response->code);
+        $this->assertEquals('POST', $response->body->method);
+        $this->assertEquals('Mark', $response->body->postData->params->name);
+        $this->assertEquals('thefosk', $response->body->postData->params->nick);
+    }
+
+
+    // POST
+    public function testPostWithExplicitPortNumber()
+    {
+        $response = Request::post('http://mockbin.com:80/request', [
+            'Accept' => 'application/json'
+        ], [
+            'name' => 'Mark',
+            'nick' => 'thefosk'
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -279,14 +308,14 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPostForm()
     {
-        $body = Request\Body::Form(array(
+        $body = Request\Body::Form([
             'name' => 'Mark',
             'nick' => 'thefosk'
-        ));
+        ]);
 
-        $response = Request::post('http://mockbin.com/request', array(
+        $response = Request::post('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), $body);
+        ], $body);
 
         $this->assertEquals('POST', $response->body->method);
         $this->assertEquals('application/x-www-form-urlencoded', $response->body->headers->{'content-type'});
@@ -297,14 +326,14 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPostMultipart()
     {
-        $body = Request\Body::Multipart(array(
+        $body = Request\Body::Multipart([
             'name' => 'Mark',
             'nick' => 'thefosk'
-        ));
+        ]);
 
-        $response = Request::post('http://mockbin.com/request', (object) array(
+        $response = Request::post('http://mockbin.com/request', (object) [
             'Accept' => 'application/json',
-        ), $body);
+        ], $body);
 
         $this->assertEquals('POST', $response->body->method);
         $this->assertEquals('multipart/form-data', explode(';', $response->body->headers->{'content-type'})[0]);
@@ -315,13 +344,13 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPostWithEqualSign()
     {
-        $body = Request\Body::Form(array(
+        $body = Request\Body::Form([
             'name' => 'Mark=Hello'
-        ));
+        ]);
 
-        $response = Request::post('http://mockbin.com/request', array(
+        $response = Request::post('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), $body);
+        ], $body);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -330,12 +359,12 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPostArray()
     {
-        $response = Request::post('http://mockbin.com/request', array(
+        $response = Request::post('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'name[0]' => 'Mark',
             'name[1]' => 'John'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -345,12 +374,12 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPostWithDots()
     {
-        $response = Request::post('http://mockbin.com/request', array(
+        $response = Request::post('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'user.name' => 'Mark',
             'nick' => 'thefosk'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -360,12 +389,12 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testRawPost()
     {
-        $response = Request::post('http://mockbin.com/request', array(
+        $response = Request::post('http://mockbin.com/request', [
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
-        ), json_encode(array(
+        ], json_encode([
             'author' => 'Sam Sullivan'
-        )));
+        ]));
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -374,17 +403,17 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testPostMultidimensionalArray()
     {
-        $body = Request\Body::Form(array(
+        $body = Request\Body::Form([
             'key' => 'value',
-            'items' => array(
+            'items' => [
                 'item1',
                 'item2'
-            )
-        ));
+            ]
+        ]);
 
-        $response = Request::post('http://mockbin.com/request', array(
+        $response = Request::post('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), $body);
+        ], $body);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -396,12 +425,12 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     // PUT
     public function testPut()
     {
-        $response = Request::put('http://mockbin.com/request', array(
+        $response = Request::put('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'name' => 'Mark',
             'nick' => 'thefosk'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('PUT', $response->body->method);
@@ -412,12 +441,12 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     // PATCH
     public function testPatch()
     {
-        $response = Request::patch('http://mockbin.com/request', array(
+        $response = Request::patch('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'name' => 'Mark',
             'nick' => 'thefosk'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('PATCH', $response->body->method);
@@ -428,13 +457,13 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     // DELETE
     public function testDelete()
     {
-        $response = Request::delete('http://mockbin.com/request', array(
+        $response = Request::delete('http://mockbin.com/request', [
             'Accept' => 'application/json',
             'Content-Type' => 'application/x-www-form-urlencoded'
-        ), array(
+        ], [
             'name' => 'Mark',
             'nick' => 'thefosk'
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('DELETE', $response->body->method);
@@ -445,9 +474,9 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     {
         $fixture = __DIR__ . '/../fixtures/upload.txt';
 
-        $headers = array('Accept' => 'application/json');
-        $files = array('file' => $fixture);
-        $data = array('name' => 'ahmad');
+        $headers = ['Accept' => 'application/json'];
+        $files = ['file' => $fixture];
+        $data = ['name' => 'ahmad'];
 
         $body = Request\Body::Multipart($data, $files);
 
@@ -463,12 +492,12 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     {
         $fixture = __DIR__ . '/../fixtures/upload.txt';
 
-        $response = Request::post('http://mockbin.com/request', array(
+        $response = Request::post('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'name' => 'Mark',
             'file' => Request\Body::File($fixture)
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -480,12 +509,12 @@ class UnirestRequestTest extends \PHPUnit_Framework_TestCase
     {
         $fixture = __DIR__ . '/../fixtures/upload.txt';
 
-        $response = Request::post('http://mockbin.com/request', array(
+        $response = Request::post('http://mockbin.com/request', [
             'Accept' => 'application/json'
-        ), array(
+        ], [
             'name' => 'Mark',
             'files[owl.gif]' => Request\Body::File($fixture)
-        ));
+        ]);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);

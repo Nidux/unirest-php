@@ -2,35 +2,37 @@
 
 namespace Unirest;
 
+use CURLFile;
+
 class Request
 {
     private static $cookie = null;
     private static $cookieFile = null;
-    private static $curlOpts = array();
-    private static $defaultHeaders = array();
+    private static $curlOpts = [];
+    private static $defaultHeaders = [];
     private static $handle = null;
-    private static $jsonOpts = array();
+    private static $jsonOpts = [];
     private static $socketTimeout = null;
     private static $verifyPeer = true;
     private static $verifyHost = true;
 
-    private static $auth = array (
+    private static $auth = [
         'user' => '',
         'pass' => '',
         'method' => CURLAUTH_BASIC
-    );
+    ];
 
-    private static $proxy = array(
+    private static $proxy = [
         'port' => false,
         'tunnel' => false,
         'address' => false,
         'type' => CURLPROXY_HTTP,
-        'auth' => array (
+        'auth' => [
             'user' => '',
             'pass' => '',
             'method' => CURLAUTH_BASIC
-        )
-    );
+        ]
+    ];
 
     /**
      * Set JSON decode mode
@@ -42,7 +44,7 @@ class Request
      */
     public static function jsonOpts($assoc = false, $depth = 512, $options = 0)
     {
-        return self::$jsonOpts = array($assoc, $depth, $options);
+        return self::$jsonOpts = [$assoc, $depth, $options];
     }
 
     /**
@@ -106,7 +108,7 @@ class Request
      */
     public static function clearDefaultHeaders()
     {
-        return self::$defaultHeaders = array();
+        return self::$defaultHeaders = [];
     }
 
     /**
@@ -137,7 +139,7 @@ class Request
      */
     public static function clearCurlOpts()
     {
-        return self::$curlOpts = array();
+        return self::$curlOpts = [];
     }
 
     /**
@@ -230,8 +232,9 @@ class Request
      * @param string $username Authentication username (deprecated)
      * @param string $password Authentication password (deprecated)
      * @return Response
+     * @throws Exception
      */
-    public static function get($url, $headers = array(), $parameters = null, $username = null, $password = null)
+    public static function get($url, $headers = [], $parameters = null, $username = null, $password = null): Response
     {
         return self::send(Method::GET, $url, $parameters, $headers, $username, $password);
     }
@@ -244,8 +247,9 @@ class Request
      * @param string $username Basic Authentication username (deprecated)
      * @param string $password Basic Authentication password (deprecated)
      * @return Response
+     * @throws Exception
      */
-    public static function head($url, $headers = array(), $parameters = null, $username = null, $password = null)
+    public static function head($url, $headers = [], $parameters = null, $username = null, $password = null): Response
     {
         return self::send(Method::HEAD, $url, $parameters, $headers, $username, $password);
     }
@@ -258,8 +262,9 @@ class Request
      * @param string $username Basic Authentication username
      * @param string $password Basic Authentication password
      * @return Response
+     * @throws Exception
      */
-    public static function options($url, $headers = array(), $parameters = null, $username = null, $password = null)
+    public static function options($url, $headers = [], $parameters = null, $username = null, $password = null): Response
     {
         return self::send(Method::OPTIONS, $url, $parameters, $headers, $username, $password);
     }
@@ -272,8 +277,9 @@ class Request
      * @param string $username Basic Authentication username (deprecated)
      * @param string $password Basic Authentication password (deprecated)
      * @return Response
+     * @throws Exception
      */
-    public static function connect($url, $headers = array(), $parameters = null, $username = null, $password = null)
+    public static function connect($url, $headers = [], $parameters = null, $username = null, $password = null): Response
     {
         return self::send(Method::CONNECT, $url, $parameters, $headers, $username, $password);
     }
@@ -286,8 +292,9 @@ class Request
      * @param string $username Basic Authentication username (deprecated)
      * @param string $password Basic Authentication password (deprecated)
      * @return Response response
+     * @throws Exception
      */
-    public static function post($url, $headers = array(), $body = null, $username = null, $password = null)
+    public static function post($url, $headers = [], $body = null, $username = null, $password = null): Response
     {
         return self::send(Method::POST, $url, $body, $headers, $username, $password);
     }
@@ -300,8 +307,9 @@ class Request
      * @param string $username Basic Authentication username (deprecated)
      * @param string $password Basic Authentication password (deprecated)
      * @return Response
+     * @throws Exception
      */
-    public static function delete($url, $headers = array(), $body = null, $username = null, $password = null)
+    public static function delete($url, $headers = [], $body = null, $username = null, $password = null): Response
     {
         return self::send(Method::DELETE, $url, $body, $headers, $username, $password);
     }
@@ -314,8 +322,9 @@ class Request
      * @param string $username Basic Authentication username (deprecated)
      * @param string $password Basic Authentication password (deprecated)
      * @return Response
+     * @throws Exception
      */
-    public static function put($url, $headers = array(), $body = null, $username = null, $password = null)
+    public static function put($url, $headers = [], $body = null, $username = null, $password = null): Response
     {
         return self::send(Method::PUT, $url, $body, $headers, $username, $password);
     }
@@ -328,8 +337,9 @@ class Request
      * @param string $username Basic Authentication username (deprecated)
      * @param string $password Basic Authentication password (deprecated)
      * @return Response
+     * @throws Exception
      */
-    public static function patch($url, $headers = array(), $body = null, $username = null, $password = null)
+    public static function patch($url, $headers = [], $body = null, $username = null, $password = null): Response
     {
         return self::send(Method::PATCH, $url, $body, $headers, $username, $password);
     }
@@ -342,8 +352,9 @@ class Request
      * @param string $username Basic Authentication username (deprecated)
      * @param string $password Basic Authentication password (deprecated)
      * @return Response
+     * @throws Exception
      */
-    public static function trace($url, $headers = array(), $body = null, $username = null, $password = null)
+    public static function trace($url, $headers = [], $body = null, $username = null, $password = null): Response
     {
         return self::send(Method::TRACE, $url, $body, $headers, $username, $password);
     }
@@ -357,7 +368,7 @@ class Request
      */
     public static function buildHTTPCurlQuery($data, $parent = false)
     {
-        $result = array();
+        $result = [];
 
         if (is_object($data)) {
             $data = get_object_vars($data);
@@ -370,7 +381,7 @@ class Request
                 $new_key = $key;
             }
 
-            if (!$value instanceof \CURLFile and (is_array($value) or is_object($value))) {
+            if (!$value instanceof CURLFile and (is_array($value) or is_object($value))) {
                 $result = array_merge($result, self::buildHTTPCurlQuery($value, $new_key));
             } else {
                 $result[$new_key] = $value;
@@ -382,16 +393,16 @@ class Request
 
     /**
      * Send a cURL request
-     * @param \Unirest\Method|string $method HTTP method to use
+     * @param Method|string $method HTTP method to use
      * @param string $url URL to send the request to
      * @param mixed $body request body
      * @param array $headers additional headers to send
      * @param string $username Authentication username (deprecated)
      * @param string $password Authentication password (deprecated)
-     * @throws \Unirest\Exception if a cURL error occurs
+     * @throws Exception if a cURL error occurs
      * @return Response
      */
-    public static function send($method, $url, $body = null, $headers = array(), $username = null, $password = null)
+    public static function send($method, $url, $body = null, $headers = [], $username = null, $password = null): Response
     {
         self::$handle = curl_init();
 
@@ -447,28 +458,28 @@ class Request
 
         // supporting deprecated http auth method
         if (!empty($username)) {
-            curl_setopt_array(self::$handle, array(
+            curl_setopt_array(self::$handle, [
                 CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
                 CURLOPT_USERPWD => $username . ':' . $password
-            ));
+            ]);
         }
 
         if (!empty(self::$auth['user'])) {
-            curl_setopt_array(self::$handle, array(
+            curl_setopt_array(self::$handle, [
                 CURLOPT_HTTPAUTH    => self::$auth['method'],
                 CURLOPT_USERPWD     => self::$auth['user'] . ':' . self::$auth['pass']
-            ));
+            ]);
         }
 
         if (self::$proxy['address'] !== false) {
-            curl_setopt_array(self::$handle, array(
+            curl_setopt_array(self::$handle, [
                 CURLOPT_PROXYTYPE       => self::$proxy['type'],
                 CURLOPT_PROXY           => self::$proxy['address'],
                 CURLOPT_PROXYPORT       => self::$proxy['port'],
                 CURLOPT_HTTPPROXYTUNNEL => self::$proxy['tunnel'],
                 CURLOPT_PROXYAUTH       => self::$proxy['auth']['method'],
                 CURLOPT_PROXYUSERPWD    => self::$proxy['auth']['user'] . ':' . self::$proxy['auth']['pass']
-            ));
+            ]);
         }
 
         $response   = curl_exec(self::$handle);
@@ -506,7 +517,7 @@ class Request
 
     public static function getFormattedHeaders($headers)
     {
-        $formattedHeaders = array();
+        $formattedHeaders = [];
 
         $combinedHeaders = array_change_key_case(array_merge(self::$defaultHeaders, (array) $headers));
 
@@ -541,7 +552,7 @@ class Request
      * @param  string $url URL to encode
      * @return string
      */
-    private static function encodeUrl($url)
+    private static function encodeUrl($url): string
     {
         $url_parsed = parse_url($url);
 
@@ -559,8 +570,7 @@ class Request
             $port = ':' . $port;
         }
 
-        $result = $scheme . $host . $port . $path . $query;
-        return $result;
+        return $scheme . $host . $port . $path . $query;
     }
 
     private static function getHeaderString($key, $val)

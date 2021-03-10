@@ -1,20 +1,20 @@
 <?php
 
-namespace Unirest\Response\Test;
+namespace Tests;
 
+use PHPUnit\Framework\TestCase;
 use Unirest\Request as Request;
 use Unirest\Response as Response;
 
-require __DIR__ . '/../../src/Unirest.php';
 
-class UnirestResponseTest extends \PHPUnit_Framework_TestCase
+class ResponseTest extends TestCase
 {
     public function testJSONAssociativeArrays()
     {
         $opts = Request::jsonOpts(true);
         $response = new Response(200, '{"a":1,"b":2,"c":3,"d":4,"e":5}', '', $opts);
 
-        $this->assertEquals($response->body['a'], 1);
+        $this->assertEquals(1, $response->body['a']);
     }
 
     public function testJSONAObjects()
@@ -22,7 +22,7 @@ class UnirestResponseTest extends \PHPUnit_Framework_TestCase
         $opts = Request::jsonOpts(false);
         $response = new Response(200, '{"a":1,"b":2,"c":3,"d":4,"e":5}', '', $opts);
 
-        $this->assertEquals($response->body->a, 1);
+        $this->assertEquals(1, $response->body->a);
     }
 
     public function testJSONOpts()
